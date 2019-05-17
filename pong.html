@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Pong</title>
+	<style>
+		canvas{
+			background-color: #eee;
+			display: block;
+			margin: 0 auto;
+		}
+		
+		.row{
+			display: flex;
+			margin: 0 auto;
+			max-width: 800px;
+		}
+		.column{
+			width: 50%;
+			display: flex;
+		}
+		#player-two-score{
+			float: right;
+			
+		}
+	</style>
+</head>
+<body>
+	<div class="row">
+		<div class="column">
+			<h1>Player 1 Score:</h1>
+			<h1 id="playerOne"></h1>
+		</div>
+		<div class="column" id="player-two-score">
+			<h1>Player 2 Score:</h1>
+			<h1 id="playerTwo"></h1>
+		</div>
+		
+	</div>
+	<canvas id="canvas" height="400" width="800"></canvas>
+	<script>
+		//contect to canvas
+		var canvas=document.querySelector("#canvas");
+		var ctx=canvas.getContext("2d");
+		//variables for the ball and movement
+		var x=20;	
+		var y=canvas.height/2;
+		var dx=4;
+		var dy=2.5;
+		var ballRadius=10;
+		//variables for paddle
+		var paddleY=canvas.height/2;
+		var paddleWidth=10;
+		var paddleHeight=75;
+		var aPressed=false;
+		var zPressed=false;
+		//variables for paddle two
+		var paddleTwoY=canvas.height/2;
+		var upPressed=false;
+		var downPressed=false;
+		//variables for score
+		var playerTwo=document.querySelector("#playerTwo");
+		var playerTwoScore=0
+		var playerOne=document.querySelector("#playerOne");
+		var playerOneScore=0;
+
+		//make a ball
+		function drawBall(){
+			ctx.beginPath();
+			ctx.arc(x,y,ballRadius,0,Math.PI*2);
+			ctx.fillStyle="#000";
+			ctx.fill();
+			ctx.closePath();
+		}
+		//make a paddle
+		function drawPaddle(){
+			ctx.beginPath();
+			ctx.fillRect(paddleWidth,paddleY,paddleWidth,paddleHeight);
+			ctx.fillStyle="#000";
+			ctx.fill();
+			ctx.closePath();
+		}
+		//make another paddle
+		function drawPaddleTwo(){
+			ctx.beginPath();
+			ctx.fillRect(canvas.width-paddleWidth,paddleTwoY,paddleWidth,paddleHeight);
+			ctx.fillStyle="#000";
+			ctx.fill();
+			ctx.closePath();
+		}
+		//move the ball and paddle
+		function draw(){
+
+			ctx.clearRect(0,0,canvas.width,canvas.height);
+			drawBall();
+			drawPaddle();
+			drawPaddleTwo();
+			playerTwo.textContent=playerTwoScore;
+			playerOne.textContent=playerOneScore;
+			//bounces ball off of top and bottom
+			if (y>canvas.height-ballRadius||y<ballRadius) {
+				dy=-dy;
+			}
+			//controls what happens when the ball touches or passes the right paddle
+			if (x>canvas.width-paddleWidth-ballRadius) {
+				if (paddleTwoY<y&&y<paddleTwoY+paddleHeight) {
+					dx=-dx;
+				}
+				else{
+					playerOneScore++;
+					x=canvas.width*0.33;	
+					y=canvas.height/2;
+				}
+				if (playerOneScore===10) {
+					playerOneScore=0;
+					playerTwoScore=0;
+					alert("Player One Wins!");
+				}
+			}
+			//controls what happens when the ball touches or passes the left paddle
+			else if(x+dx<paddleWidth+ballRadius){
+			 	if(paddleY<y&&y<paddleY+paddleHeight){
+			 		dx=-dx;
+				}
+				else{
+					playerTwoScore++;
+					x=canvas.width*0.66;	
+					y=canvas.height/2;
+				}
+				if (playerTwoScore===10) {
+					playerTwoScore=0;
+					playerOneScore=0;
+					alert("Player Two Wins!");
+				}
+				
+			}
+
+			//moves paddle One (left)
+			if (zPressed&&paddleY<canvas.height-paddleHeight) {
+				paddleY+=6;
+			}
+			if (aPressed&&paddleY>0) {
+				paddleY-=6;
+			}
+			//moves paddle two (right)
+			if (downPressed&&paddleTwoY<canvas.height-paddleHeight) {
+				paddleTwoY+=6;
+			}
+			if (upPressed&&paddleTwoY>0) {
+				paddleTwoY-=6;
+			}
+			//ball motion
+			x+=dx;
+			y+=dy;
+
+			
+		}
+		//connects keyboard to code
+		document.addEventListener("keydown",keyDownActionAZ);
+		document.addEventListener("keyup",keyUpActionAZ);
+		document.addEventListener("keydown",keyDownAction);
+		document.addEventListener("keyup",keyUpAction);
+
+		function keyDownAction(e){
+			if (e.keyCode==38) {
+				upPressed=true;
+				
+			}
+			if (e.keyCode==40) {
+				downPressed=true;
+			}
+		}
+		function keyUpAction(e){
+			if (e.keyCode==38) {
+				upPressed=false;
+				
+			}
+			if (e.keyCode==40) {
+				downPressed=false;
+			}
+		}
+		function keyDownActionAZ(e){
+			if (e.keyCode==65) {
+				aPressed=true;
+				
+			}
+			if (e.keyCode==90) {
+				zPressed=true;
+			}
+		}
+		function keyUpActionAZ(e){
+			if (e.keyCode==65) {
+				aPressed=false;
+				
+			}
+			if (e.keyCode==90) {
+				zPressed=false;
+			}
+		}
+
+		setInterval(draw,10);
+
+	</script>
+</body>
+</html>
